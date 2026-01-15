@@ -1,0 +1,83 @@
+# ===================================================================
+#             ALGORITHM & MODEL PARAMETER FILE
+# ===================================================================
+
+# 1. Algorithm Mode Selection
+# -------------------------------------------------------------------
+# Options:
+#   'standard_ga'       : Standard Genetic Algorithm (No heuristic operators)
+#   'heuristic_ga'      : Heuristic GA (Centrality-based initialization/mutation)
+#   'heuristic_ga_vnd'  : Heuristic GA + Variable Neighborhood Descent (VND) [RECOMMENDED]
+#   'heuristic_ga_sa'   : Heuristic GA + Simulated Annealing (SA) refinement
+#   'standard_ga_sa'    : Standard GA + SA refinement
+#   'sa_only'           : Pure Simulated Annealing (from random start points)
+#   'vnd_only'          : Pure VND (from random start points)
+algorithm_mode: 'heuristic_ga_vnd'
+
+
+# 2. Economic & Objective Function Parameters
+# -------------------------------------------------------------------
+budget: 5000        # Total budget constraint (Small: 4000; Medium: 5000; Large: 10000)
+unit_cost: 0.8      # Cost coefficient for direct physical damage calculation
+weights:
+  a: 0.5            # Weight for Economic Objective
+  b: 0.5            # Weight for Social (Accessibility) Objective
+
+
+# 3. General Settings
+# -------------------------------------------------------------------
+random_seed: 1001           # Fix seed for reproducibility
+parallel:
+  max_workers: 8            # CPU cores for parallel processing
+
+
+# 4. Genetic Algorithm (GA) Parameters
+# -------------------------------------------------------------------
+nsga3:
+  population_size: 50
+  generations: 200
+  crossover_prob: 0.9       # Probability of crossover (0.8 - 0.95 recommended)
+
+
+# 5. Memetic / VND Settings (Active only in 'heuristic_ga_vnd' mode)
+# -------------------------------------------------------------------
+vnd_settings:
+  enable: true              # Master switch for VND
+  run_every: 5              # Run VND every N generations
+  burn_in: 20               # Generations to wait before starting VND
+  topk: 5                   # Number of elite solutions to refine per run
+  swap_limit_per_n: 50      # Max swap attempts per neighborhood (Use 200 for 'vnd_only')
+
+memetic_settings:
+  immigrate_every: 5        # Frequency of "Destruction & Reconstruction" immigration
+  immigrate_ratio: 0.10     # Percentage of population to replace with immigrants
+
+
+# 6. Simulated Annealing (SA) Settings (Active in SA modes)
+# -------------------------------------------------------------------
+sa_settings:
+  num_elites_for_sa: 5      # Number of top GA solutions to refine via SA
+  iterations_per_elite: 100 # Steps for SA refinement on a single solution
+  initial_temp: 10.0        # Initial temperature (higher = more exploration)
+  cooling_rate: 0.995       # Cooling rate (closer to 1 = slower cooling)
+
+
+# 7. Heuristic Operators (Centrality-based)
+# -------------------------------------------------------------------
+sampling:
+  random_init_ratio: 0.25   # % of population initialized purely randomly (remainder is heuristic)
+
+mutation:
+  directed_ratio: 0.7       # % of mutations guided by centrality heuristics
+  random_ratio: 0.3         # % of mutations that are purely random
+  replace_min: 0.05         # Min % of genes to change during directed mutation
+  replace_max: 0.15         # Max % of genes to change during directed mutation
+
+
+# 8. Standalone Mode Settings
+# -------------------------------------------------------------------
+# Applies only to 'sa_only' or 'vnd_only' modes
+standalone_settings:
+  num_initial_solutions: 40  # Number of random starting points to explore
+  sa_iterations: 250         # SA iterations per start point (for sa_only)
+  progress_log_interval: 10  # Log progress every N evaluations
